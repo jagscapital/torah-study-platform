@@ -201,8 +201,8 @@ async function initializeCasualMode() {
 
   if (!parshaData) return;
 
-  // Generate casual content
-  const casualContent = generateCasualContent(currentParsha, parshaData);
+  // Generate casual content (now async)
+  const casualContent = await generateCasualContent(currentParsha, parshaData);
 
   if (summaryEl) {
     summaryEl.innerHTML = `<p>${casualContent.summary}</p>`;
@@ -217,10 +217,20 @@ async function initializeCasualMode() {
   }
 }
 
-function generateCasualContent(parsha, data) {
-  // This would ideally use AI to generate summaries
-  // For now, we'll provide structure
+async function generateCasualContent(parsha, data) {
+  // Try to load authentic parsha summaries from data file
+  try {
+    const response = await fetch('../data/parsha-summaries.json');
+    const summaries = await response.json();
 
+    if (summaries[parsha.name]) {
+      return summaries[parsha.name];
+    }
+  } catch (error) {
+    console.log('Could not load parsha summaries, using generic content');
+  }
+
+  // Fallback to generic content if specific summary not available
   return {
     summary: `This week we read Parshat ${parsha.name}, which contains profound teachings about faith, morality, and our relationship with the Divine. The portion explores key themes that resonate throughout Jewish thought and practice.`,
 
